@@ -20,6 +20,13 @@ from bs4 import BeautifulSoup
 import sys
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from sklearn.cluster import KMeans
+from sklearn import metrics
+from scipy.spatial.distance import cdist
+import numpy as np
+import matplotlib.pyplot as plt
+ 
+
 dataset = pd.read_csv("datasetjob.csv", sep=";",decimal=".")
 
 df = dataset[["title","city","state","country","description","job_type","category"]]
@@ -87,9 +94,27 @@ result=vector.fit_transform(concat_df)
 #maxcol = res1.col[k]
 
 print (result.shape)
-best_feature = result.argmax(axis = 1)
-for i in range(1,len(best_feature)):
-    vector.get_feature_names()[i][best_feature[i][0][1]]
+#☺best_feature = result.argmax(axis = 1)
+#for i in range(1,len(best_feature)):
+#    vector.get_feature_names()[i][best_feature[i][0][1]]
+#
+#vector.get_feature_names()[32]
+#concat_df[0]
 
-vector.get_feature_names()[32]
-concat_df[0]
+
+
+#METHODE ELBOW
+distortions = []
+K = range(1,20)
+for k in K:
+    kmeanModel = KMeans(n_clusters=k).fit(result.toarray())
+    kmeanModel.fit(result)
+    distortions.append(sum(np.min(cdist(result.toarray(), kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / result.shape[0])
+ 
+# Plot the elbow
+plt.plot(K, distortions, 'bx-')
+plt.xlabel('k')
+plt.ylabel('Distortion')
+plt.title('The Elbow Method showing the optimal k')
+plt.show()
+ 

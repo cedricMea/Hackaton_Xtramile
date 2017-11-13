@@ -11,7 +11,7 @@ import nltk
 import urllib.request
 from bs4 import BeautifulSoup
 import sys
-from sklearn import feature_extraction
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 dataset = pd.read_csv("datasetjob.csv", sep=";",decimal=".")
 
@@ -45,7 +45,6 @@ def fromHtlmToText(textHtml):
     
 
 for i in range(1,df.shape[0]):
-    print(i)
     fromHtlmToText(df["description"][i])
 
 
@@ -57,6 +56,13 @@ df = df.drop("description",axis = 1)
 #desc = df["description"][0]
 
 
+#CONCATENATION
+concat_df=pd.Series(df.fillna(' ').values.tolist()).str.join(' ')
+#print()
+#%%
+#Vectorizer
+vector=TfidfVectorizer(analyzer='word',ngram_range=(1,1),strip_accents="unicode")
+result=vector.fit_transform(concat_df)
 
 
 

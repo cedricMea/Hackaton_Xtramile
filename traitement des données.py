@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Mon Nov 13 16:50:43 2017
+
+@author: lulu
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Mon Nov 13 13:01:08 2017
 
 @author: lulu
@@ -59,10 +66,30 @@ df = df.drop("description",axis = 1)
 #CONCATENATION
 concat_df=pd.Series(df.fillna(' ').values.tolist()).str.join(' ')
 #print()
-#%%
+def indmax(M):
+    ind = []
+    max = 0
+    for i in range(M.shape[0]):
+        for j in range(M.shape[1]):
+            if M[i][j] > max:
+                max = M[i][j]
+                
+                
+
+
 #Vectorizer
-vector=TfidfVectorizer(analyzer='word',ngram_range=(1,1),strip_accents="unicode")
+vector=TfidfVectorizer(analyzer='word',ngram_range=(4,4),strip_accents="unicode")
 result=vector.fit_transform(concat_df)
+#res1 = result.tocoo()
+#k = res1.data.argmax()
+#maxval = res1.data[k]
+#maxrow = res1.row[k]
+#maxcol = res1.col[k]
 
+print (result.shape)
+best_feature = result.argmax(axis = 1)
+for i in range(1,len(best_feature)):
+    vector.get_feature_names()[i][best_feature[i][0][1]]
 
-
+vector.get_feature_names()[32]
+concat_df[0]

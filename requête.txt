@@ -1,0 +1,13 @@
+---Select City order by apparition
+
+select city,count(*) from public.jobs 
+group by city
+order by count(*) DESC
+
+--Extract data 
+select title,city,public.jobs.state,country,description,job_type,category from public.jobs 
+
+Select  job_type,count(*) from jobs
+group by job_type
+order by count(*) DESC
+

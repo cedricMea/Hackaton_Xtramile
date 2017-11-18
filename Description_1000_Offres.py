@@ -29,6 +29,7 @@ from sklearn.preprocessing import FunctionTransformer,StandardScaler,MaxAbsScale
 from sklearn.pipeline import FeatureUnion,Pipeline
 from sklearn.metrics import silhouette_score
 from scipy.cluster.hierarchy import dendrogram,linkage
+from sklearn.decomposition import TruncatedSVD
 
 
 
@@ -159,27 +160,40 @@ for indice in range(0,ajout.shape[0]):
 tfidf_vectorizer=TfidfVectorizer(analyzer='word',ngram_range=(1,1),strip_accents="unicode")
 mod_res=tfidf_vectorizer.fit(dataFrame)
 matrice_mod=mod_res.transform(dataFrame).todense()
+sparse_matrice_mod=mod_res.transform(dataFrame)
 
+#We compute a TruncatedSVD on tf-idf Matrix. We do so a LSA.
+#I kept 100 components cauz i saw it's an empirix value for n-components of truncatedSVD for LSA.
+#Feel free to try others values
+svd_vectorizer=TruncatedSVD(n_components=100)
+svd_matrice=svd_vectorizer.fit_transform(matrice_mod)
 
 #Construction of KMean Model
 kmeanModel = KMeans(n_clusters=200).fit(matrice_mod)
 res=kmeanModel.predict(matrice_mod)
 
 
-#Construct  and plot different intra_cluster distortions and silhouette_score for different score
+
+#Construct  and plot different intra_cluster distortions and silhouette_score for different k
 distortions = []
 silhouette=[]
-K =[50,100,150,200,250,300]
+K = range(2,350)
+
+
 for k in K:
-    kmeanModel = KMeans(n_clusters=k).fit(matrice_mod)
-    kmeanModel.fit_predict(matrice_mod)
-    #distortions.append(sum(np.min(cdist(matrice_mod, kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / matrice_mod.shape[0])
-    #silhouette.append(silhouette_score(matrice_mod,kmeanModel.labels_))   
+    kmeanModel = KMeans(n_clusters=k).fit(svd_matrice)
+    kmeanModel.fit_predict(svd_matrice)
+    distortions.append(sum(np.min(cdist(svd_matrice, kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / svd_matrice.shape[0])
+    silhouette.append(silhouette_score(svd_matrice,kmeanModel.labels_))   
+
+
+
+
 #Plot the elbow
-plt.plot(K, silhouette, 'bx-')
+plt.plot(K, silhouette , 'bx-')
 plt.xlabel('k')
-plt.ylabel('Silhouette_score')
-plt.title('The silhouette Method showing the optimal k')
+plt.ylabel('silhouette_score')
+plt.title('The  silhouette_score Method showing the optimal k')
 plt.show()
 
 
